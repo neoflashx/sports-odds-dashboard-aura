@@ -7,7 +7,11 @@ class SoccerOdds extends HTMLElement {
         this.refreshInterval = 300000; // 5 minutes default
         this.refreshTimer = null;
         this.apiBaseUrl = '';
-        this.shadowRoot = this.attachShadow({ mode: 'closed' });
+        // Attach shadow root - shadowRoot is a getter on HTMLElement, don't assign it
+        this.attachShadow({ mode: 'closed' });
+    }
+    get shadow() {
+        return this.shadowRoot;
     }
     static get observedAttributes() {
         return ['sport-key', 'theme', 'bookmaker', 'refresh-interval', 'api-url'];
@@ -59,10 +63,10 @@ class SoccerOdds extends HTMLElement {
     checkMobileLayout() {
         const width = this.getBoundingClientRect().width;
         if (width < 350) {
-            this.shadowRoot.host?.classList.add('is-mobile');
+            this.shadow.host?.classList.add('is-mobile');
         }
         else {
-            this.shadowRoot.host?.classList.remove('is-mobile');
+            this.shadow.host?.classList.remove('is-mobile');
         }
     }
     startAutoRefresh() {
@@ -105,7 +109,7 @@ class SoccerOdds extends HTMLElement {
         }
     }
     renderLoading() {
-        this.shadowRoot.innerHTML = `
+        this.shadow.innerHTML = `
       ${this.getStyles()}
       <div class="widget-container ${this.theme}">
         <div class="loading">Loading odds...</div>
@@ -113,7 +117,7 @@ class SoccerOdds extends HTMLElement {
     `;
     }
     renderError(message) {
-        this.shadowRoot.innerHTML = `
+        this.shadow.innerHTML = `
       ${this.getStyles()}
       <div class="widget-container ${this.theme}">
         <div class="error">${message}</div>
@@ -152,7 +156,7 @@ class SoccerOdds extends HTMLElement {
         </div>
       `;
         }).join('');
-        this.shadowRoot.innerHTML = `
+        this.shadow.innerHTML = `
       ${this.getStyles()}
       <div class="widget-container ${this.theme}">
         <div class="matches">

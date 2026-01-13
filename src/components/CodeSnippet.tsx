@@ -5,6 +5,7 @@ interface CodeSnippetProps {
   bookmaker: string;
   theme: 'light' | 'dark';
   apiUrl: string;
+  matchId?: string;
 }
 
 export default function CodeSnippet({
@@ -12,6 +13,7 @@ export default function CodeSnippet({
   bookmaker,
   theme,
   apiUrl,
+  matchId,
 }: CodeSnippetProps) {
   const [copied, setCopied] = useState(false);
 
@@ -19,6 +21,7 @@ export default function CodeSnippet({
     `sport-key="${sportKey}"`,
     `theme="${theme}"`,
     bookmaker && `bookmaker="${bookmaker}"`,
+    matchId && `match-id="${matchId}"`,
     `api-url="${apiUrl}"`,
   ]
     .filter(Boolean)

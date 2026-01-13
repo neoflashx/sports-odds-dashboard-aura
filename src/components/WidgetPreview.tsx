@@ -4,12 +4,14 @@ interface WidgetPreviewProps {
   sportKey: string;
   bookmaker: string;
   theme: 'light' | 'dark';
+  matchId?: string;
 }
 
 export default function WidgetPreview({
   sportKey,
   bookmaker,
   theme,
+  matchId,
 }: WidgetPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +33,9 @@ export default function WidgetPreview({
         widget.setAttribute('bookmaker', bookmaker);
       }
       widget.setAttribute('api-url', window.location.origin);
+      if (matchId) {
+        widget.setAttribute('match-id', matchId);
+      }
 
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(widget);
@@ -60,7 +65,7 @@ export default function WidgetPreview({
         setTimeout(loadWidget, 100);
       }
     }
-  }, [sportKey, bookmaker, theme]);
+  }, [sportKey, bookmaker, theme, matchId]);
 
   return (
     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 min-h-[400px]">

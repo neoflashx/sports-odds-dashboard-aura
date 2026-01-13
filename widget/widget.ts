@@ -14,7 +14,6 @@ interface Match {
 }
 
 class SoccerOdds extends HTMLElement {
-  declare shadowRoot: ShadowRoot;
   private sportKey: string = '';
   private theme: 'dark' | 'light' = 'light';
   private bookmaker: string = '';
@@ -24,7 +23,12 @@ class SoccerOdds extends HTMLElement {
 
   constructor() {
     super();
-    this.shadowRoot = this.attachShadow({ mode: 'closed' });
+    // Attach shadow root - shadowRoot is a getter on HTMLElement, don't assign it
+    this.attachShadow({ mode: 'closed' });
+  }
+
+  private get shadow(): ShadowRoot {
+    return this.shadowRoot!;
   }
 
   static get observedAttributes() {
@@ -86,9 +90,9 @@ class SoccerOdds extends HTMLElement {
   private checkMobileLayout() {
     const width = this.getBoundingClientRect().width;
     if (width < 350) {
-      this.shadowRoot.host?.classList.add('is-mobile');
+      this.shadow.host?.classList.add('is-mobile');
     } else {
-      this.shadowRoot.host?.classList.remove('is-mobile');
+      this.shadow.host?.classList.remove('is-mobile');
     }
   }
 
@@ -140,7 +144,7 @@ class SoccerOdds extends HTMLElement {
   }
 
   private renderLoading() {
-    this.shadowRoot.innerHTML = `
+    this.shadow.innerHTML = `
       ${this.getStyles()}
       <div class="widget-container ${this.theme}">
         <div class="loading">Loading odds...</div>
@@ -149,7 +153,7 @@ class SoccerOdds extends HTMLElement {
   }
 
   private renderError(message: string) {
-    this.shadowRoot.innerHTML = `
+    this.shadow.innerHTML = `
       ${this.getStyles()}
       <div class="widget-container ${this.theme}">
         <div class="error">${message}</div>
@@ -192,7 +196,7 @@ class SoccerOdds extends HTMLElement {
       `;
     }).join('');
 
-    this.shadowRoot.innerHTML = `
+    this.shadow.innerHTML = `
       ${this.getStyles()}
       <div class="widget-container ${this.theme}">
         <div class="matches">

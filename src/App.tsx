@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import LeagueSelector from './components/LeagueSelector';
 import BookmakerSelector from './components/BookmakerSelector';
+import MatchSelector from './components/MatchSelector';
 import WidgetPreview from './components/WidgetPreview';
 import CodeSnippet from './components/CodeSnippet';
 
@@ -10,11 +11,28 @@ interface Sport {
   group: string;
 }
 
+interface Match {
+  id: string;
+  teams: {
+    home: string;
+    away: string;
+  };
+  start_at: string;
+  odds: {
+    home: number | null;
+    draw: number | null;
+    away: number | null;
+  };
+  bookmaker: string;
+}
+
 function App() {
   const [sports, setSports] = useState<Sport[]>([]);
   const [selectedSport, setSelectedSport] = useState<string>('');
   const [selectedBookmaker, setSelectedBookmaker] = useState<string>('');
+  const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [availableBookmakers, setAvailableBookmakers] = useState<string[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [loading, setLoading] = useState(true);
 
@@ -43,26 +61,39 @@ function App() {
     }
   };
 
-  const fetchBookmakers = async (sportKey: string) => {
+  const fetchMatches = async (sportKey: string) => {
     try {
-      const response = await fetch(`/api/odds?sport=${sportKey}&region=us&market=h2h`);
+      const response = await fetch(`/api/odds?sport=${sportKey}&region=us&market=h2h${selectedBookmaker ? `&bookmaker=${encodeURIComponent(selectedBookmaker)}` : ''}`);
       if (response.ok) {
         const data = await response.json();
+        setMatches(data);
+        
+        // Extract unique bookmakers
         const bookmakers = Array.from(
-          new Set(data.map((match: any) => match.bookmaker).filter(Boolean))
+          new Set(data.map((match: Match) => match.bookmaker).filter(Boolean))
         ) as string[];
         setAvailableBookmakers(bookmakers);
+        
+        // Reset selected match when matches change
+        setSelectedMatch('');
+      } else {
+        console.error('Failed to fetch matches:', response.status);
+        setMatches([]);
       }
     } catch (error) {
-      console.error('Error fetching bookmakers:', error);
+      console.error('Error fetching matches:', error);
+      setMatches([]);
     }
   };
 
   useEffect(() => {
     if (selectedSport) {
-      fetchBookmakers(selectedSport);
+      fetchMatches(selectedSport);
+    } else {
+      setMatches([]);
+      setAvailableBookmakers([]);
     }
-  }, [selectedSport]);
+  }, [selectedSport, selectedBookmaker]);
 
   const getApiUrl = () => {
     if (typeof window !== 'undefined') {
@@ -123,11 +154,19 @@ function App() {
               />
 
               {selectedSport && (
-                <BookmakerSelector
-                  bookmakers={availableBookmakers}
-                  selectedBookmaker={selectedBookmaker}
-                  onSelect={setSelectedBookmaker}
-                />
+                <>
+                  <BookmakerSelector
+                    bookmakers={availableBookmakers}
+                    selectedBookmaker={selectedBookmaker}
+                    onSelect={setSelectedBookmaker}
+                  />
+                  
+                  <MatchSelector
+                    matches={matches}
+                    selectedMatch={selectedMatch}
+                    onSelect={setSelectedMatch}
+                  />
+                </>
               )}
 
               <div className="mt-4">
@@ -151,6 +190,7 @@ function App() {
                 bookmaker={selectedBookmaker}
                 theme={theme}
                 apiUrl={getApiUrl()}
+                matchId={selectedMatch}
               />
             )}
           </div>
@@ -164,6 +204,7 @@ function App() {
                   sportKey={selectedSport}
                   bookmaker={selectedBookmaker}
                   theme={theme}
+                  matchId={selectedMatch}
                 />
               ) : (
                 <div className="text-gray-500 text-center py-8">
