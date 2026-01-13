@@ -17,25 +17,48 @@ export default function WidgetPreview({
     if (!containerRef.current) return;
 
     // Clear previous widget
-    containerRef.current.innerHTML = '';
-
-    // Create widget element
-    const widget = document.createElement('soccer-odds');
-    widget.setAttribute('sport-key', sportKey);
-    widget.setAttribute('theme', theme);
-    if (bookmaker) {
-      widget.setAttribute('bookmaker', bookmaker);
-    }
-    widget.setAttribute('api-url', window.location.origin);
-
-    containerRef.current.appendChild(widget);
+    containerRef.current.innerHTML = '<div class="text-gray-500 text-center py-4">Loading widget...</div>';
 
     // Load widget script if not already loaded
-    if (!document.querySelector('script[src*="widget.js"]')) {
-      const script = document.createElement('script');
-      script.src = '/widget.js';
-      script.async = true;
-      document.head.appendChild(script);
+    const loadWidget = () => {
+      if (!containerRef.current) return;
+
+      // Create widget element
+      const widget = document.createElement('soccer-odds');
+      widget.setAttribute('sport-key', sportKey);
+      widget.setAttribute('theme', theme);
+      if (bookmaker) {
+        widget.setAttribute('bookmaker', bookmaker);
+      }
+      widget.setAttribute('api-url', window.location.origin);
+
+      containerRef.current.innerHTML = '';
+      containerRef.current.appendChild(widget);
+    };
+
+    // Check if custom element is already defined
+    if (customElements.get('soccer-odds')) {
+      loadWidget();
+    } else {
+      // Load widget script
+      const existingScript = document.querySelector('script[src*="widget.js"]');
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.src = '/widget.js';
+        script.async = true;
+        script.onload = () => {
+          loadWidget();
+        };
+        script.onerror = () => {
+          if (containerRef.current) {
+            containerRef.current.innerHTML = '<div class="text-red-600 text-center py-4">Failed to load widget.js. Check that the file exists at /widget.js</div>';
+          }
+        };
+        document.head.appendChild(script);
+      } else {
+        // Script already loading, wait a bit then try
+        setTimeout(loadWidget, 100);
+      }
     }
   }, [sportKey, bookmaker, theme]);
 

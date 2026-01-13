@@ -9,6 +9,10 @@
     {
       "source": "/widget/render",
       "destination": "/api/widget-render"
+    },
+    {
+      "source": "/widget.js",
+      "destination": "/widget.js"
     }
   ],
   "headers": [

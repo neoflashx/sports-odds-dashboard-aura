@@ -31,6 +31,10 @@ function App() {
         if (data.length > 0 && !selectedSport) {
           setSelectedSport(data[0].key);
         }
+      } else {
+        console.error('Failed to fetch sports:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error details:', errorData);
       }
     } catch (error) {
       console.error('Error fetching sports:', error);
@@ -70,7 +74,26 @@ function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600">Loading sports leagues...</div>
+      </div>
+    );
+  }
+
+  if (sports.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-2">No sports leagues found</div>
+          <div className="text-gray-600 text-sm mb-4">
+            Check browser console for errors
+          </div>
+          <button
+            onClick={fetchSports}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
