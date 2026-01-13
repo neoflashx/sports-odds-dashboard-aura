@@ -20,6 +20,16 @@ export default async function handler(
   }
 
   try {
+    // Check if API key is set
+    if (!process.env.THE_ODDS_API_KEY) {
+      console.error('THE_ODDS_API_KEY is not set');
+      res.status(500).json({
+        error: 'Configuration error',
+        message: 'THE_ODDS_API_KEY environment variable is not set',
+      });
+      return;
+    }
+
     const sports = await fetchSports();
     
     // Filter for soccer leagues only
@@ -30,9 +40,19 @@ export default async function handler(
     res.status(200).json(soccerLeagues);
   } catch (error) {
     console.error('Error fetching sports:', error);
+    
+    // Provide more detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorDetails = error instanceof Error ? {
+      name: error.name,
+      message: errorMessage,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    } : { message: errorMessage };
+
     res.status(500).json({
       error: 'Failed to fetch sports',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: errorMessage,
+      details: errorDetails,
     });
   }
 }
