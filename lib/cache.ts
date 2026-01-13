@@ -1,4 +1,4 @@
-import { getFirestoreInstance } from './firebase';
+import { getFirestoreInstance } from './firebase.js';
 
 const CACHE_TTL = 600; // 10 minutes in seconds
 

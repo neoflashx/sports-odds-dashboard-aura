@@ -19,6 +19,6 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "api", "widget"],
+  "include": ["src", "api", "widget", "lib"],
   "exclude": ["node_modules"]
 }

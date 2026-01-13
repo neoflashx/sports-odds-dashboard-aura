@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { fetchOdds, OddsApiOddsResponse } from '../lib/odds-api';
-import { transformOddsData, TransformedOdds } from '../lib/transform';
-import { getCacheKey, getCachedData, setCachedData, isCacheValid } from '../lib/cache';
-import { setCorsHeaders } from '../lib/cors';
+import { fetchOdds, OddsApiOddsResponse } from '../lib/odds-api.js';
+import { transformOddsData, TransformedOdds } from '../lib/transform.js';
+import { getCacheKey, getCachedData, setCachedData, isCacheValid } from '../lib/cache.js';
+import { setCorsHeaders } from '../lib/cors.js';
 
 export default async function handler(
   req: VercelRequest,

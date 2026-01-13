@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { fetchSports } from '../lib/odds-api';
-import { setCorsHeaders } from '../lib/cors';
+import { fetchSports } from '../lib/odds-api.js';
+import { setCorsHeaders } from '../lib/cors.js';
 
 export default async function handler(
   req: VercelRequest,

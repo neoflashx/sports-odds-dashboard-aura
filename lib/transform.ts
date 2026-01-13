@@ -1,4 +1,4 @@
-import { OddsApiOddsResponse } from './odds-api';
+import { OddsApiOddsResponse } from './odds-api.js';
 
 export interface TransformedOdds {
   id: string;

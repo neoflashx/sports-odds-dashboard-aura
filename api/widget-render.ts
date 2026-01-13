@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { fetchOdds, OddsApiOddsResponse } from '../lib/odds-api';
-import { transformOddsData } from '../lib/transform';
-import { getCacheKey, getCachedData, setCachedData, isCacheValid } from '../lib/cache';
+import { fetchOdds, OddsApiOddsResponse } from '../lib/odds-api.js';
+import { transformOddsData } from '../lib/transform.js';
+import { getCacheKey, getCachedData, setCachedData, isCacheValid } from '../lib/cache.js';
 
 const escapeHtml = (text: string): string => {
   const map: { [key: string]: string } = {
