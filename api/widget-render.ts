@@ -350,20 +350,42 @@ export default async function handler(
       // Filter bookmakers if specific ones are selected
       let displayBookmakers = match.bookmakers;
       if (selectedBookmakers.length > 0) {
+        // Normalize function to handle variations
+        const normalize = (str: string) => {
+          return str
+            .replace(/\s*\([^)]*\)/g, '') // Remove parentheses and content
+            .replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric
+            .toLowerCase();
+        };
+        
         displayBookmakers = match.bookmakers.filter(bm => 
           selectedBookmakers.some(selected => {
             const selectedLower = selected.toLowerCase().trim();
             const titleLower = bm.title.toLowerCase().trim();
             const keyLower = bm.key.toLowerCase().trim();
             
-            // Exact match
+            // Normalize names
+            const selectedNormalized = normalize(selectedLower);
+            const titleNormalized = normalize(titleLower);
+            const keyNormalized = normalize(keyLower);
+            
+            // Exact match (original)
             if (titleLower === selectedLower || keyLower === selectedLower) {
               return true;
             }
             
+            // Normalized match (handles "Unibet (UK)" vs "Unibet")
+            if (titleNormalized === selectedNormalized || keyNormalized === selectedNormalized) {
+              return true;
+            }
+            
             // Partial match - check if selected name is contained in title or vice versa
-            // This handles cases like "Unibet (UK)" matching "Unibet"
             if (titleLower.includes(selectedLower) || selectedLower.includes(titleLower)) {
+              return true;
+            }
+            
+            // Check normalized partial match
+            if (titleNormalized.includes(selectedNormalized) || selectedNormalized.includes(titleNormalized)) {
               return true;
             }
             

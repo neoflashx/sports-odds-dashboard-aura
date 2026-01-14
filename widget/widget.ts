@@ -243,14 +243,39 @@ class SoccerOdds extends HTMLElement {
             const titleLower = bm.title.toLowerCase().trim();
             const keyLower = bm.key.toLowerCase().trim();
             
-            // Exact match
+            // Normalize names - remove common suffixes/prefixes and special chars
+            const normalize = (str: string) => {
+              return str
+                .replace(/\s*\([^)]*\)/g, '') // Remove parentheses and content
+                .replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric
+                .toLowerCase();
+            };
+            
+            const selectedNormalized = normalize(selectedLower);
+            const titleNormalized = normalize(titleLower);
+            const keyNormalized = normalize(keyLower);
+            
+            // Exact match (original)
             if (titleLower === selectedLower || keyLower === selectedLower) {
+              console.log(`Exact match: ${selected} -> ${bm.title}`);
+              return true;
+            }
+            
+            // Normalized match (handles "Unibet (UK)" vs "Unibet")
+            if (titleNormalized === selectedNormalized || keyNormalized === selectedNormalized) {
+              console.log(`Normalized match: ${selected} -> ${bm.title}`);
               return true;
             }
             
             // Partial match - check if selected name is contained in title or vice versa
-            // This handles cases like "Unibet (UK)" matching "Unibet"
             if (titleLower.includes(selectedLower) || selectedLower.includes(titleLower)) {
+              console.log(`Partial match: ${selected} -> ${bm.title}`);
+              return true;
+            }
+            
+            // Check normalized partial match
+            if (titleNormalized.includes(selectedNormalized) || selectedNormalized.includes(titleNormalized)) {
+              console.log(`Normalized partial match: ${selected} -> ${bm.title}`);
               return true;
             }
             
@@ -259,6 +284,14 @@ class SoccerOdds extends HTMLElement {
         );
         
         console.log('Filtered bookmakers:', displayBookmakers.map(bm => bm.title));
+        
+        // If no matches found, log detailed info for debugging
+        if (displayBookmakers.length === 0) {
+          console.error('No bookmakers matched!', {
+            selected: this.bookmakers,
+            available: match.bookmakers.map(bm => ({ title: bm.title, key: bm.key })),
+          });
+        }
       }
 
       if (displayBookmakers.length === 0) {
