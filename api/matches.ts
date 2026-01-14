@@ -32,7 +32,7 @@ export default async function handler(
   const cacheValid = await isCacheValid(cacheKey);
 
   try {
-    let rawData: OddsApiOddsResponse[];
+    let rawData: OddsApiOddsResponse[] | null = null;
 
     // Check cache first - we cache raw API data
     if (cacheValid) {
@@ -57,6 +57,11 @@ export default async function handler(
           throw apiError;
         }
       }
+    }
+
+    // Ensure rawData is available
+    if (!rawData) {
+      throw new Error('Failed to fetch match data');
     }
 
     // Transform to include all bookmakers per match
