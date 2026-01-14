@@ -59,10 +59,12 @@ class SoccerOdds extends HTMLElement {
       case 'bookmaker':
         // Support legacy single bookmaker attribute
         this.bookmakers = newValue ? [newValue] : [];
+        console.log('Bookmaker attribute changed:', this.bookmakers);
         break;
       case 'bookmakers':
         // Support multiple bookmakers (comma-separated)
         this.bookmakers = newValue ? newValue.split(',').map(b => b.trim()).filter(Boolean) : [];
+        console.log('Bookmakers attribute changed:', this.bookmakers);
         break;
       case 'match-id':
         this.matchId = newValue || '';
@@ -94,6 +96,8 @@ class SoccerOdds extends HTMLElement {
     } else {
       this.bookmakers = [];
     }
+    
+    console.log('Widget connected with bookmakers:', this.bookmakers);
     
     this.matchId = this.getAttribute('match-id') || '';
     const refreshAttr = this.getAttribute('refresh-interval');
@@ -170,6 +174,11 @@ class SoccerOdds extends HTMLElement {
       }
 
       const data: Match[] = await response.json();
+      console.log('Loaded matches data:', {
+        matchCount: data.length,
+        selectedBookmakers: this.bookmakers,
+        matchId: this.matchId,
+      });
       this.renderMatches(data);
     } catch (error) {
       console.error('Error loading odds:', error);
@@ -223,12 +232,28 @@ class SoccerOdds extends HTMLElement {
       // Filter bookmakers if specific ones are selected
       let displayBookmakers = match.bookmakers;
       if (this.bookmakers.length > 0) {
+        console.log('Filtering bookmakers:', {
+          selected: this.bookmakers,
+          available: match.bookmakers.map(bm => ({ title: bm.title, key: bm.key })),
+        });
+        
         displayBookmakers = match.bookmakers.filter(bm => 
-          this.bookmakers.some(selected => 
-            bm.title.toLowerCase() === selected.toLowerCase() ||
-            bm.key.toLowerCase() === selected.toLowerCase()
-          )
+          this.bookmakers.some(selected => {
+            const selectedLower = selected.toLowerCase().trim();
+            const titleMatch = bm.title.toLowerCase().trim() === selectedLower;
+            const keyMatch = bm.key.toLowerCase().trim() === selectedLower;
+            return titleMatch || keyMatch;
+          })
         );
+        
+        console.log('Filtered bookmakers:', displayBookmakers.map(bm => bm.title));
+        
+        // If filtering resulted in no matches, show all bookmakers instead
+        // This handles cases where bookmaker names don't match exactly
+        if (displayBookmakers.length === 0 && match.bookmakers.length > 0) {
+          console.warn('No bookmakers matched filter, showing all bookmakers');
+          displayBookmakers = match.bookmakers;
+        }
       }
 
       if (displayBookmakers.length === 0) {

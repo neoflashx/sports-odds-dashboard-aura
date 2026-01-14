@@ -351,11 +351,19 @@ export default async function handler(
       let displayBookmakers = match.bookmakers;
       if (selectedBookmakers.length > 0) {
         displayBookmakers = match.bookmakers.filter(bm => 
-          selectedBookmakers.some(selected => 
-            bm.title.toLowerCase() === selected.toLowerCase() ||
-            bm.key.toLowerCase() === selected.toLowerCase()
-          )
+          selectedBookmakers.some(selected => {
+            const selectedLower = selected.toLowerCase().trim();
+            const titleMatch = bm.title.toLowerCase().trim() === selectedLower;
+            const keyMatch = bm.key.toLowerCase().trim() === selectedLower;
+            return titleMatch || keyMatch;
+          })
         );
+        
+        // If filtering resulted in no matches, show all bookmakers instead
+        // This handles cases where bookmaker names don't match exactly
+        if (displayBookmakers.length === 0 && match.bookmakers.length > 0) {
+          displayBookmakers = match.bookmakers;
+        }
       }
 
       if (displayBookmakers.length === 0) {
