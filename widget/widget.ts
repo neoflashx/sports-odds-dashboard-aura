@@ -90,9 +90,9 @@ class SoccerOdds extends HTMLElement {
   private checkMobileLayout() {
     const width = this.getBoundingClientRect().width;
     if (width < 350) {
-      this.shadow.host?.classList.add('is-mobile');
+      this.classList.add('is-mobile');
     } else {
-      this.shadow.host?.classList.remove('is-mobile');
+      this.classList.remove('is-mobile');
     }
   }
 
