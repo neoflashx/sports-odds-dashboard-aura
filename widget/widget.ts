@@ -22,14 +22,19 @@ class SoccerOdds extends HTMLElement {
   private refreshTimer: number | null = null;
   private apiBaseUrl: string = '';
 
+  private _shadowRoot: ShadowRoot | null = null;
+
   constructor() {
     super();
-    // Attach shadow root - shadowRoot is a getter on HTMLElement, don't assign it
-    this.attachShadow({ mode: 'closed' });
+    // Attach shadow root and store it
+    this._shadowRoot = this.attachShadow({ mode: 'closed' });
   }
 
   private get shadow(): ShadowRoot {
-    return this.shadowRoot!;
+    if (!this._shadowRoot) {
+      this._shadowRoot = this.attachShadow({ mode: 'closed' });
+    }
+    return this._shadowRoot;
   }
 
   static get observedAttributes() {
@@ -118,6 +123,12 @@ class SoccerOdds extends HTMLElement {
   private async loadData() {
     if (!this.sportKey) {
       this.renderError('Sport key is required');
+      return;
+    }
+
+    // Ensure shadow root is ready
+    if (!this.shadow) {
+      console.error('Shadow root not available');
       return;
     }
 

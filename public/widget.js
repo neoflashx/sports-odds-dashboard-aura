@@ -8,11 +8,15 @@ class SoccerOdds extends HTMLElement {
         this.refreshInterval = 300000; // 5 minutes default
         this.refreshTimer = null;
         this.apiBaseUrl = '';
-        // Attach shadow root - shadowRoot is a getter on HTMLElement, don't assign it
-        this.attachShadow({ mode: 'closed' });
+        this._shadowRoot = null;
+        // Attach shadow root and store it
+        this._shadowRoot = this.attachShadow({ mode: 'closed' });
     }
     get shadow() {
-        return this.shadowRoot;
+        if (!this._shadowRoot) {
+            this._shadowRoot = this.attachShadow({ mode: 'closed' });
+        }
+        return this._shadowRoot;
     }
     static get observedAttributes() {
         return ['sport-key', 'theme', 'bookmaker', 'match-id', 'refresh-interval', 'api-url'];
@@ -89,6 +93,11 @@ class SoccerOdds extends HTMLElement {
     async loadData() {
         if (!this.sportKey) {
             this.renderError('Sport key is required');
+            return;
+        }
+        // Ensure shadow root is ready
+        if (!this.shadow) {
+            console.error('Shadow root not available');
             return;
         }
         this.renderLoading();
