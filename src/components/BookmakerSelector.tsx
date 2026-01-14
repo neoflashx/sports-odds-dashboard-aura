@@ -12,14 +12,14 @@ export default function BookmakerSelector({
   return (
     <div className="mt-4">
       <label className="block text-sm font-medium text-gray-700 mb-2">
-        Bookmaker (Optional)
+        Bookmaker
       </label>
       <select
         value={selectedBookmaker}
         onChange={(e) => onSelect(e.target.value)}
         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <option value="">All bookmakers (best odds)</option>
+        <option value="">Select a bookmaker...</option>
         {bookmakers.map((bookmaker) => (
           <option key={bookmaker} value={bookmaker}>
             {bookmaker}

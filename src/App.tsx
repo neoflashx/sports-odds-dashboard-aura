@@ -18,12 +18,15 @@ interface Match {
     away: string;
   };
   start_at: string;
-  odds: {
-    home: number | null;
-    draw: number | null;
-    away: number | null;
-  };
-  bookmaker: string;
+  bookmakers: Array<{
+    key: string;
+    title: string;
+    odds: {
+      home: number | null;
+      draw: number | null;
+      away: number | null;
+    };
+  }>;
 }
 
 function App() {
@@ -33,6 +36,7 @@ function App() {
   const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [availableBookmakers, setAvailableBookmakers] = useState<string[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
+  const [region, setRegion] = useState<string>('us');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [loading, setLoading] = useState(true);
 
@@ -61,39 +65,55 @@ function App() {
     }
   };
 
-  const fetchMatches = async (sportKey: string) => {
+  const fetchMatches = async (sportKey: string, regionCode: string) => {
     try {
-      const response = await fetch(`/api/odds?sport=${sportKey}&region=us&market=h2h${selectedBookmaker ? `&bookmaker=${encodeURIComponent(selectedBookmaker)}` : ''}`);
+      const response = await fetch(`/api/matches?sport=${sportKey}&region=${regionCode}&market=h2h`);
       if (response.ok) {
         const data = await response.json();
         setMatches(data);
         
-        // Extract unique bookmakers
-        const bookmakers = Array.from(
-          new Set(data.map((match: Match) => match.bookmaker).filter(Boolean))
-        ) as string[];
-        setAvailableBookmakers(bookmakers);
-        
-        // Reset selected match when matches change
+        // Reset selections when matches change
         setSelectedMatch('');
+        setSelectedBookmaker('');
+        setAvailableBookmakers([]);
       } else {
         console.error('Failed to fetch matches:', response.status);
         setMatches([]);
+        setAvailableBookmakers([]);
       }
     } catch (error) {
       console.error('Error fetching matches:', error);
       setMatches([]);
+      setAvailableBookmakers([]);
     }
   };
 
+  // Update available bookmakers when a match is selected
+  useEffect(() => {
+    if (selectedMatch && matches.length > 0) {
+      const match = matches.find((m) => m.id === selectedMatch);
+      if (match) {
+        const bookmakers = match.bookmakers.map((bm) => bm.title);
+        setAvailableBookmakers(bookmakers);
+        // Auto-select first bookmaker if none selected
+        if (!selectedBookmaker && bookmakers.length > 0) {
+          setSelectedBookmaker(bookmakers[0]);
+        }
+      }
+    } else {
+      setAvailableBookmakers([]);
+      setSelectedBookmaker('');
+    }
+  }, [selectedMatch, matches]);
+
   useEffect(() => {
     if (selectedSport) {
-      fetchMatches(selectedSport);
+      fetchMatches(selectedSport, region);
     } else {
       setMatches([]);
       setAvailableBookmakers([]);
     }
-  }, [selectedSport, selectedBookmaker]);
+  }, [selectedSport, region]);
 
   const getApiUrl = () => {
     if (typeof window !== 'undefined') {
@@ -155,17 +175,35 @@ function App() {
 
               {selectedSport && (
                 <>
-                  <BookmakerSelector
-                    bookmakers={availableBookmakers}
-                    selectedBookmaker={selectedBookmaker}
-                    onSelect={setSelectedBookmaker}
-                  />
-                  
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Region
+                    </label>
+                    <select
+                      value={region}
+                      onChange={(e) => setRegion(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="us">United States</option>
+                      <option value="uk">United Kingdom</option>
+                      <option value="au">Australia</option>
+                      <option value="eu">Europe</option>
+                    </select>
+                  </div>
+
                   <MatchSelector
                     matches={matches}
                     selectedMatch={selectedMatch}
                     onSelect={setSelectedMatch}
                   />
+
+                  {selectedMatch && (
+                    <BookmakerSelector
+                      bookmakers={availableBookmakers}
+                      selectedBookmaker={selectedBookmaker}
+                      onSelect={setSelectedBookmaker}
+                    />
+                  )}
                 </>
               )}
 

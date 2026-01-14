@@ -5,12 +5,15 @@ interface Match {
     away: string;
   };
   start_at: string;
-  odds: {
-    home: number | null;
-    draw: number | null;
-    away: number | null;
-  };
-  bookmaker: string;
+  bookmakers: Array<{
+    key: string;
+    title: string;
+    odds: {
+      home: number | null;
+      draw: number | null;
+      away: number | null;
+    };
+  }>;
 }
 
 interface MatchSelectorProps {
