@@ -188,7 +188,12 @@ class SoccerOdds extends HTMLElement {
                 console.log('Filtering bookmakers:', {
                     selected: this.bookmakers,
                     available: match.bookmakers.map(bm => ({ title: bm.title, key: bm.key })),
+                    selectedCount: this.bookmakers.length,
+                    availableCount: match.bookmakers.length,
                 });
+                // Log each available bookmaker for debugging
+                console.log('Available bookmakers:', match.bookmakers.map(bm => `"${bm.title}" (key: "${bm.key}")`).join(', '));
+                console.log('Selected bookmakers:', this.bookmakers.map(b => `"${b}"`).join(', '));
                 displayBookmakers = match.bookmakers.filter(bm => this.bookmakers.some(selected => {
                     const selectedLower = selected.toLowerCase().trim();
                     const titleLower = bm.title.toLowerCase().trim();
@@ -231,6 +236,24 @@ class SoccerOdds extends HTMLElement {
                     console.error('No bookmakers matched!', {
                         selected: this.bookmakers,
                         available: match.bookmakers.map(bm => ({ title: bm.title, key: bm.key })),
+                    });
+                    // Try to find close matches
+                    this.bookmakers.forEach(selected => {
+                        const selectedLower = selected.toLowerCase().trim();
+                        const matches = match.bookmakers.filter(bm => {
+                            const titleLower = bm.title.toLowerCase().trim();
+                            const keyLower = bm.key.toLowerCase().trim();
+                            return titleLower.includes(selectedLower) ||
+                                selectedLower.includes(titleLower) ||
+                                keyLower.includes(selectedLower) ||
+                                selectedLower.includes(keyLower);
+                        });
+                        if (matches.length > 0) {
+                            console.warn(`Close match for "${selected}":`, matches.map(bm => `"${bm.title}" (key: "${bm.key}")`));
+                        }
+                        else {
+                            console.warn(`No close match found for "${selected}"`);
+                        }
                     });
                 }
             }
