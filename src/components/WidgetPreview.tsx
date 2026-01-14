@@ -5,6 +5,7 @@ interface WidgetPreviewProps {
   bookmakers: string[];
   theme: 'light' | 'dark';
   matchId?: string;
+  region?: string;
 }
 
 export default function WidgetPreview({
@@ -12,6 +13,7 @@ export default function WidgetPreview({
   bookmakers,
   theme,
   matchId,
+  region = 'us',
 }: WidgetPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -42,6 +44,7 @@ export default function WidgetPreview({
       const widget = document.createElement('soccer-odds');
       widget.setAttribute('sport-key', sportKey);
       widget.setAttribute('theme', theme);
+      widget.setAttribute('region', region);
       if (bookmakers.length > 0) {
         widget.setAttribute('bookmakers', bookmakers.join(','));
       }

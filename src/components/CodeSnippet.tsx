@@ -6,6 +6,7 @@ interface CodeSnippetProps {
   theme: 'light' | 'dark';
   apiUrl: string;
   matchId?: string;
+  region?: string;
 }
 
 export default function CodeSnippet({
@@ -14,12 +15,14 @@ export default function CodeSnippet({
   theme,
   apiUrl,
   matchId,
+  region = 'us',
 }: CodeSnippetProps) {
   const [copied, setCopied] = useState(false);
 
   const attributes = [
     `sport-key="${sportKey}"`,
     `theme="${theme}"`,
+    `region="${region}"`,
     bookmakers.length > 0 && `bookmakers="${bookmakers.join(',')}"`,
     matchId && `match-id="${matchId}"`,
     `api-url="${apiUrl}"`,
@@ -31,7 +34,7 @@ export default function CodeSnippet({
 <soccer-odds ${attributes}></soccer-odds>`;
 
   const iframeCode = `<iframe 
-  src="${apiUrl}/widget/render?sport-key=${sportKey}&theme=${theme}${bookmakers.length > 0 ? `&bookmakers=${encodeURIComponent(bookmakers.join(','))}` : ''}${matchId ? `&match-id=${matchId}` : ''}"
+  src="${apiUrl}/widget/render?sport-key=${sportKey}&theme=${theme}&region=${region}${bookmakers.length > 0 ? `&bookmakers=${encodeURIComponent(bookmakers.join(','))}` : ''}${matchId ? `&match-id=${matchId}` : ''}"
   width="100%" 
   height="600" 
   frameborder="0"

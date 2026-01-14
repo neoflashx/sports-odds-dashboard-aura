@@ -5,6 +5,7 @@ class SoccerOdds extends HTMLElement {
         this.theme = 'light';
         this.bookmakers = [];
         this.matchId = '';
+        this.region = 'us'; // Default to US
         this.refreshInterval = 300000; // 5 minutes default
         this.refreshTimer = null;
         this.apiBaseUrl = '';
@@ -19,7 +20,7 @@ class SoccerOdds extends HTMLElement {
         return this._shadowRoot;
     }
     static get observedAttributes() {
-        return ['sport-key', 'theme', 'bookmaker', 'bookmakers', 'match-id', 'refresh-interval', 'api-url'];
+        return ['sport-key', 'theme', 'bookmaker', 'bookmakers', 'match-id', 'region', 'refresh-interval', 'api-url'];
     }
     attributeChangedCallback(name, oldValue, newValue) {
         if (oldValue === newValue)
@@ -43,6 +44,9 @@ class SoccerOdds extends HTMLElement {
                 break;
             case 'match-id':
                 this.matchId = newValue || '';
+                break;
+            case 'region':
+                this.region = newValue || 'us';
                 break;
             case 'refresh-interval':
                 this.refreshInterval = parseInt(newValue, 10) * 1000 || 300000;
@@ -72,6 +76,7 @@ class SoccerOdds extends HTMLElement {
         }
         console.log('Widget connected with bookmakers:', this.bookmakers);
         this.matchId = this.getAttribute('match-id') || '';
+        this.region = this.getAttribute('region') || 'us';
         const refreshAttr = this.getAttribute('refresh-interval');
         this.refreshInterval = refreshAttr ? parseInt(refreshAttr, 10) * 1000 : 300000;
         this.apiBaseUrl = this.getAttribute('api-url') || window.location.origin;
@@ -123,7 +128,7 @@ class SoccerOdds extends HTMLElement {
         try {
             const params = new URLSearchParams({
                 sport: this.sportKey,
-                region: 'us',
+                region: this.region,
                 market: 'h2h',
             });
             // Use the matches endpoint to get all bookmakers

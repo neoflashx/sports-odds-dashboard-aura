@@ -253,7 +253,7 @@ export default async function handler(
     return;
   }
 
-  const { 'sport-key': sportKey, theme = 'light', bookmaker, bookmakers, 'match-id': matchId } = req.query;
+  const { 'sport-key': sportKey, theme = 'light', bookmaker, bookmakers, 'match-id': matchId, region = 'us' } = req.query;
   
   // Support both single and multiple bookmakers
   const selectedBookmakers: string[] = [];
@@ -281,7 +281,8 @@ export default async function handler(
   }
 
   const themeValue = theme === 'dark' ? 'dark' : 'light';
-  const cacheKey = getCacheKey(sportKey, 'us', 'h2h');
+  const regionValue = typeof region === 'string' ? region : 'us';
+  const cacheKey = getCacheKey(sportKey, regionValue, 'h2h');
   const cacheValid = await isCacheValid(cacheKey);
 
   try {
@@ -298,7 +299,7 @@ export default async function handler(
     // If no cache, fetch from API
     if (!rawData) {
       try {
-        rawData = await fetchOdds(sportKey, 'us', 'h2h');
+        rawData = await fetchOdds(sportKey, regionValue, 'h2h');
         await setCachedData(cacheKey, rawData);
       } catch (apiError) {
         console.error('Error fetching from Odds API:', apiError);

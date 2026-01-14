@@ -229,6 +229,7 @@ function App() {
                 theme={theme}
                 apiUrl={getApiUrl()}
                 matchId={selectedMatch}
+                region={region}
               />
             )}
           </div>
@@ -243,6 +244,7 @@ function App() {
                   bookmakers={selectedBookmakers}
                   theme={theme}
                   matchId={selectedMatch}
+                  region={region}
                 />
               ) : (
                 <div className="text-gray-500 text-center py-8">
