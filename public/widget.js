@@ -191,17 +191,20 @@ class SoccerOdds extends HTMLElement {
                 });
                 displayBookmakers = match.bookmakers.filter(bm => this.bookmakers.some(selected => {
                     const selectedLower = selected.toLowerCase().trim();
-                    const titleMatch = bm.title.toLowerCase().trim() === selectedLower;
-                    const keyMatch = bm.key.toLowerCase().trim() === selectedLower;
-                    return titleMatch || keyMatch;
+                    const titleLower = bm.title.toLowerCase().trim();
+                    const keyLower = bm.key.toLowerCase().trim();
+                    // Exact match
+                    if (titleLower === selectedLower || keyLower === selectedLower) {
+                        return true;
+                    }
+                    // Partial match - check if selected name is contained in title or vice versa
+                    // This handles cases like "Unibet (UK)" matching "Unibet"
+                    if (titleLower.includes(selectedLower) || selectedLower.includes(titleLower)) {
+                        return true;
+                    }
+                    return false;
                 }));
                 console.log('Filtered bookmakers:', displayBookmakers.map(bm => bm.title));
-                // If filtering resulted in no matches, show all bookmakers instead
-                // This handles cases where bookmaker names don't match exactly
-                if (displayBookmakers.length === 0 && match.bookmakers.length > 0) {
-                    console.warn('No bookmakers matched filter, showing all bookmakers');
-                    displayBookmakers = match.bookmakers;
-                }
             }
             if (displayBookmakers.length === 0) {
                 return `
