@@ -32,7 +32,7 @@ interface Match {
 function App() {
   const [sports, setSports] = useState<Sport[]>([]);
   const [selectedSport, setSelectedSport] = useState<string>('');
-  const [selectedBookmaker, setSelectedBookmaker] = useState<string>('');
+  const [selectedBookmakers, setSelectedBookmakers] = useState<string[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [availableBookmakers, setAvailableBookmakers] = useState<string[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -96,13 +96,13 @@ function App() {
         const bookmakers = match.bookmakers.map((bm) => bm.title);
         setAvailableBookmakers(bookmakers);
         // Auto-select first bookmaker if none selected
-        if (!selectedBookmaker && bookmakers.length > 0) {
-          setSelectedBookmaker(bookmakers[0]);
+        if (selectedBookmakers.length === 0 && bookmakers.length > 0) {
+          setSelectedBookmakers([bookmakers[0]]);
         }
       }
     } else {
       setAvailableBookmakers([]);
-      setSelectedBookmaker('');
+      setSelectedBookmakers([]);
     }
   }, [selectedMatch, matches]);
 
@@ -200,8 +200,8 @@ function App() {
                   {selectedMatch && (
                     <BookmakerSelector
                       bookmakers={availableBookmakers}
-                      selectedBookmaker={selectedBookmaker}
-                      onSelect={setSelectedBookmaker}
+                      selectedBookmakers={selectedBookmakers}
+                      onSelect={setSelectedBookmakers}
                     />
                   )}
                 </>
@@ -222,10 +222,10 @@ function App() {
               </div>
             </div>
 
-            {selectedSport && (
+            {selectedSport && selectedMatch && selectedBookmakers.length > 0 && (
               <CodeSnippet
                 sportKey={selectedSport}
-                bookmaker={selectedBookmaker}
+                bookmakers={selectedBookmakers}
                 theme={theme}
                 apiUrl={getApiUrl()}
                 matchId={selectedMatch}
@@ -240,7 +240,7 @@ function App() {
               {selectedSport ? (
                 <WidgetPreview
                   sportKey={selectedSport}
-                  bookmaker={selectedBookmaker}
+                  bookmakers={selectedBookmakers}
                   theme={theme}
                   matchId={selectedMatch}
                 />

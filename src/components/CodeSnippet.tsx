@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 interface CodeSnippetProps {
   sportKey: string;
-  bookmaker: string;
+  bookmakers: string[];
   theme: 'light' | 'dark';
   apiUrl: string;
   matchId?: string;
@@ -10,7 +10,7 @@ interface CodeSnippetProps {
 
 export default function CodeSnippet({
   sportKey,
-  bookmaker,
+  bookmakers,
   theme,
   apiUrl,
   matchId,
@@ -20,7 +20,7 @@ export default function CodeSnippet({
   const attributes = [
     `sport-key="${sportKey}"`,
     `theme="${theme}"`,
-    bookmaker && `bookmaker="${bookmaker}"`,
+    bookmakers.length > 0 && `bookmakers="${bookmakers.join(',')}"`,
     matchId && `match-id="${matchId}"`,
     `api-url="${apiUrl}"`,
   ]
@@ -31,7 +31,7 @@ export default function CodeSnippet({
 <soccer-odds ${attributes}></soccer-odds>`;
 
   const iframeCode = `<iframe 
-  src="${apiUrl}/widget/render?sport-key=${sportKey}&theme=${theme}${bookmaker ? `&bookmaker=${encodeURIComponent(bookmaker)}` : ''}"
+  src="${apiUrl}/widget/render?sport-key=${sportKey}&theme=${theme}${bookmakers.length > 0 ? `&bookmakers=${encodeURIComponent(bookmakers.join(','))}` : ''}${matchId ? `&match-id=${matchId}` : ''}"
   width="100%" 
   height="600" 
   frameborder="0"

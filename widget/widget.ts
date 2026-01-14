@@ -1,3 +1,13 @@
+interface BookmakerOdds {
+  key: string;
+  title: string;
+  odds: {
+    home: number | null;
+    draw: number | null;
+    away: number | null;
+  };
+}
+
 interface Match {
   id: string;
   teams: {
@@ -5,18 +15,13 @@ interface Match {
     away: string;
   };
   start_at: string;
-  odds: {
-    home: number | null;
-    draw: number | null;
-    away: number | null;
-  };
-  bookmaker: string;
+  bookmakers: BookmakerOdds[];
 }
 
 class SoccerOdds extends HTMLElement {
   private sportKey: string = '';
   private theme: 'dark' | 'light' = 'light';
-  private bookmaker: string = '';
+  private bookmakers: string[] = [];
   private matchId: string = '';
   private refreshInterval: number = 300000; // 5 minutes default
   private refreshTimer: number | null = null;
@@ -38,7 +43,7 @@ class SoccerOdds extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['sport-key', 'theme', 'bookmaker', 'match-id', 'refresh-interval', 'api-url'];
+    return ['sport-key', 'theme', 'bookmaker', 'bookmakers', 'match-id', 'refresh-interval', 'api-url'];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -52,7 +57,12 @@ class SoccerOdds extends HTMLElement {
         this.theme = (newValue === 'dark' ? 'dark' : 'light');
         break;
       case 'bookmaker':
-        this.bookmaker = newValue || '';
+        // Support legacy single bookmaker attribute
+        this.bookmakers = newValue ? [newValue] : [];
+        break;
+      case 'bookmakers':
+        // Support multiple bookmakers (comma-separated)
+        this.bookmakers = newValue ? newValue.split(',').map(b => b.trim()).filter(Boolean) : [];
         break;
       case 'match-id':
         this.matchId = newValue || '';
@@ -73,7 +83,18 @@ class SoccerOdds extends HTMLElement {
   connectedCallback() {
     this.sportKey = this.getAttribute('sport-key') || '';
     this.theme = (this.getAttribute('theme') === 'dark' ? 'dark' : 'light');
-    this.bookmaker = this.getAttribute('bookmaker') || '';
+    
+    // Support both single and multiple bookmaker attributes
+    const bookmakersAttr = this.getAttribute('bookmakers');
+    const bookmakerAttr = this.getAttribute('bookmaker');
+    if (bookmakersAttr) {
+      this.bookmakers = bookmakersAttr.split(',').map(b => b.trim()).filter(Boolean);
+    } else if (bookmakerAttr) {
+      this.bookmakers = [bookmakerAttr];
+    } else {
+      this.bookmakers = [];
+    }
+    
     this.matchId = this.getAttribute('match-id') || '';
     const refreshAttr = this.getAttribute('refresh-interval');
     this.refreshInterval = refreshAttr ? parseInt(refreshAttr, 10) * 1000 : 300000;
@@ -141,11 +162,8 @@ class SoccerOdds extends HTMLElement {
         market: 'h2h',
       });
 
-      if (this.bookmaker) {
-        params.append('bookmaker', this.bookmaker);
-      }
-
-      const response = await fetch(`${this.apiBaseUrl}/api/odds?${params.toString()}`);
+      // Use the matches endpoint to get all bookmakers
+      const response = await fetch(`${this.apiBaseUrl}/api/matches?${params.toString()}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -202,6 +220,62 @@ class SoccerOdds extends HTMLElement {
         minute: '2-digit',
       });
 
+      // Filter bookmakers if specific ones are selected
+      let displayBookmakers = match.bookmakers;
+      if (this.bookmakers.length > 0) {
+        displayBookmakers = match.bookmakers.filter(bm => 
+          this.bookmakers.some(selected => 
+            bm.title.toLowerCase() === selected.toLowerCase() ||
+            bm.key.toLowerCase() === selected.toLowerCase()
+          )
+        );
+      }
+
+      if (displayBookmakers.length === 0) {
+        return `
+          <div class="match">
+            <div class="match-header">
+              <div class="teams">
+                <span class="team home">${this.escapeHtml(match.teams.home)}</span>
+                <span class="vs">vs</span>
+                <span class="team away">${this.escapeHtml(match.teams.away)}</span>
+              </div>
+              <div class="match-time">${timeStr}</div>
+            </div>
+            <div class="no-bookmakers">No bookmakers available for selected filters</div>
+          </div>
+        `;
+      }
+
+      // Render each bookmaker's odds
+      const bookmakersHtml = displayBookmakers.map(bookmaker => {
+        return `
+          <div class="bookmaker-odds">
+            <div class="bookmaker-name">${this.escapeHtml(bookmaker.title)}</div>
+            <div class="odds-row">
+              <div class="odd-item">
+                <span class="odd-label">${this.escapeHtml(match.teams.home)}</span>
+                <span class="odd-value ${bookmaker.odds.home !== null ? 'available' : 'unavailable'}">
+                  ${bookmaker.odds.home !== null ? bookmaker.odds.home.toFixed(2) : 'N/A'}
+                </span>
+              </div>
+              <div class="odd-item">
+                <span class="odd-label">Draw</span>
+                <span class="odd-value ${bookmaker.odds.draw !== null ? 'available' : 'unavailable'}">
+                  ${bookmaker.odds.draw !== null ? bookmaker.odds.draw.toFixed(2) : 'N/A'}
+                </span>
+              </div>
+              <div class="odd-item">
+                <span class="odd-label">${this.escapeHtml(match.teams.away)}</span>
+                <span class="odd-value ${bookmaker.odds.away !== null ? 'available' : 'unavailable'}">
+                  ${bookmaker.odds.away !== null ? bookmaker.odds.away.toFixed(2) : 'N/A'}
+                </span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
       return `
         <div class="match">
           <div class="match-header">
@@ -212,12 +286,9 @@ class SoccerOdds extends HTMLElement {
             </div>
             <div class="match-time">${timeStr}</div>
           </div>
-          <div class="odds">
-            ${match.odds.home !== null ? `<div class="odd home">${match.odds.home.toFixed(2)}</div>` : ''}
-            ${match.odds.draw !== null ? `<div class="odd draw">${match.odds.draw.toFixed(2)}</div>` : ''}
-            ${match.odds.away !== null ? `<div class="odd away">${match.odds.away.toFixed(2)}</div>` : ''}
+          <div class="bookmakers-list">
+            ${bookmakersHtml}
           </div>
-          <div class="bookmaker">${this.escapeHtml(match.bookmaker)}</div>
         </div>
       `;
     }).join('');
@@ -283,6 +354,7 @@ class SoccerOdds extends HTMLElement {
           border-radius: 6px;
           padding: 12px;
           transition: background 0.2s;
+          margin-bottom: 16px;
         }
 
         .match:hover {
@@ -293,7 +365,9 @@ class SoccerOdds extends HTMLElement {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 8px;
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid ${borderColor};
           flex-wrap: wrap;
           gap: 8px;
         }
@@ -323,29 +397,81 @@ class SoccerOdds extends HTMLElement {
           color: ${isDark ? '#888' : '#666'};
         }
 
-        .odds {
+        .bookmakers-list {
           display: flex;
-          gap: 8px;
-          margin-bottom: 8px;
-          flex-wrap: wrap;
+          flex-direction: column;
+          gap: 12px;
         }
 
-        .odd {
-          flex: 1;
-          min-width: 60px;
+        .bookmaker-odds {
+          border: 1px solid ${borderColor};
+          border-radius: 4px;
+          padding: 10px;
+          background: ${isDark ? '#222' : '#f9fafb'};
+        }
+
+        .bookmaker-name {
+          font-weight: 600;
+          font-size: 13px;
+          color: ${primaryColor};
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .odds-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 8px;
+        }
+
+        .odd-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          padding: 8px;
+          background: ${bgColor};
+          border-radius: 4px;
+          border: 1px solid ${borderColor};
+        }
+
+        .odd-label {
+          font-size: 11px;
+          color: ${isDark ? '#aaa' : '#666'};
+          text-align: center;
+          font-weight: 500;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 100%;
+        }
+
+        .odd-value {
+          font-size: 18px;
+          font-weight: 700;
+          padding: 6px 12px;
+          border-radius: 4px;
+          min-width: 50px;
+          text-align: center;
+        }
+
+        .odd-value.available {
           background: ${primaryColor};
           color: white;
-          padding: 8px;
-          border-radius: 4px;
-          text-align: center;
-          font-weight: 600;
-          font-size: 16px;
         }
 
-        .bookmaker {
-          font-size: 11px;
+        .odd-value.unavailable {
+          background: ${isDark ? '#333' : '#e5e7eb'};
+          color: ${isDark ? '#666' : '#9ca3af'};
+          font-size: 14px;
+        }
+
+        .no-bookmakers {
+          text-align: center;
+          padding: 16px;
           color: ${isDark ? '#888' : '#666'};
-          text-align: right;
+          font-style: italic;
         }
 
         :host(.is-mobile) .match-header {
@@ -363,12 +489,24 @@ class SoccerOdds extends HTMLElement {
           display: none;
         }
 
-        :host(.is-mobile) .odds {
-          flex-direction: column;
+        :host(.is-mobile) .odds-row {
+          grid-template-columns: 1fr;
+          gap: 6px;
         }
 
-        :host(.is-mobile) .odd {
-          width: 100%;
+        :host(.is-mobile) .odd-item {
+          flex-direction: row;
+          justify-content: space-between;
+          padding: 10px;
+        }
+
+        :host(.is-mobile) .odd-label {
+          text-align: left;
+          font-size: 12px;
+        }
+
+        :host(.is-mobile) .odd-value {
+          font-size: 16px;
         }
       </style>
     `;
