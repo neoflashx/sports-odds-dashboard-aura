@@ -17,6 +17,7 @@ class SoccerOdds extends HTMLElement {
   private sportKey: string = '';
   private theme: 'dark' | 'light' = 'light';
   private bookmaker: string = '';
+  private matchId: string = '';
   private refreshInterval: number = 300000; // 5 minutes default
   private refreshTimer: number | null = null;
   private apiBaseUrl: string = '';
@@ -32,7 +33,7 @@ class SoccerOdds extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['sport-key', 'theme', 'bookmaker', 'refresh-interval', 'api-url'];
+    return ['sport-key', 'theme', 'bookmaker', 'match-id', 'refresh-interval', 'api-url'];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -47,6 +48,9 @@ class SoccerOdds extends HTMLElement {
         break;
       case 'bookmaker':
         this.bookmaker = newValue || '';
+        break;
+      case 'match-id':
+        this.matchId = newValue || '';
         break;
       case 'refresh-interval':
         this.refreshInterval = parseInt(newValue, 10) * 1000 || 300000;
@@ -65,6 +69,7 @@ class SoccerOdds extends HTMLElement {
     this.sportKey = this.getAttribute('sport-key') || '';
     this.theme = (this.getAttribute('theme') === 'dark' ? 'dark' : 'light');
     this.bookmaker = this.getAttribute('bookmaker') || '';
+    this.matchId = this.getAttribute('match-id') || '';
     const refreshAttr = this.getAttribute('refresh-interval');
     this.refreshInterval = refreshAttr ? parseInt(refreshAttr, 10) * 1000 : 300000;
     this.apiBaseUrl = this.getAttribute('api-url') || window.location.origin;
@@ -162,12 +167,22 @@ class SoccerOdds extends HTMLElement {
   }
 
   private renderMatches(matches: Match[]) {
-    if (matches.length === 0) {
+    // Filter by match-id if specified
+    let filteredMatches = matches;
+    if (this.matchId) {
+      filteredMatches = matches.filter(m => m.id === this.matchId);
+      if (filteredMatches.length === 0) {
+        this.renderError(`Match not found (ID: ${this.matchId})`);
+        return;
+      }
+    }
+
+    if (filteredMatches.length === 0) {
       this.renderError('No matches available');
       return;
     }
 
-    const matchesHtml = matches.map(match => {
+    const matchesHtml = filteredMatches.map(match => {
       const startTime = new Date(match.start_at);
       const timeStr = startTime.toLocaleString('en-US', {
         month: 'short',
