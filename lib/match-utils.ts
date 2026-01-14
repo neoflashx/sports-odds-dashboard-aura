@@ -22,24 +22,27 @@ export const transformMatchesWithBookmakers = (
   rawData: OddsApiOddsResponse[]
 ): MatchWithBookmakers[] => {
   return rawData.map((game) => {
-    const bookmakers = game.bookmakers.map((bookmaker) => {
-      const h2hMarket = bookmaker.markets.find((m) => m.key === 'h2h');
-      const outcomes = h2hMarket?.outcomes || [];
+    const bookmakers = game.bookmakers
+      .map((bookmaker) => {
+        const h2hMarket = bookmaker.markets.find((m) => m.key === 'h2h');
+        const outcomes = h2hMarket?.outcomes || [];
 
-      const homeOutcome = outcomes.find((o) => o.name === game.home_team);
-      const awayOutcome = outcomes.find((o) => o.name === game.away_team);
-      const drawOutcome = outcomes.find((o) => o.name === 'Draw' || o.name === 'draw');
+        const homeOutcome = outcomes.find((o) => o.name === game.home_team);
+        const awayOutcome = outcomes.find((o) => o.name === game.away_team);
+        const drawOutcome = outcomes.find((o) => o.name === 'Draw' || o.name === 'draw');
 
-      return {
-        key: bookmaker.key,
-        title: bookmaker.title,
-        odds: {
-          home: homeOutcome?.price || null,
-          draw: drawOutcome?.price || null,
-          away: awayOutcome?.price || null,
-        },
-      };
-    });
+        return {
+          key: bookmaker.key,
+          title: bookmaker.title,
+          odds: {
+            home: homeOutcome?.price || null,
+            draw: drawOutcome?.price || null,
+            away: awayOutcome?.price || null,
+          },
+        };
+      })
+      // Filter out bookmakers with no odds available (all three are null)
+      .filter((bm) => bm.odds.home !== null || bm.odds.draw !== null || bm.odds.away !== null);
 
     return {
       id: game.id,

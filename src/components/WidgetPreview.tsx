@@ -17,13 +17,26 @@ export default function WidgetPreview({
   const [isLoaded, setIsLoaded] = useState(false);
 
   const loadWidget = () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) {
+      console.error('Container ref is not available');
+      return;
+    }
 
     // Clear previous widget
     containerRef.current.innerHTML = '<div class="text-gray-500 text-center py-4">Loading widget...</div>';
 
     const createWidget = () => {
-      if (!containerRef.current) return;
+      if (!containerRef.current) {
+        console.error('Container ref is not available in createWidget');
+        return;
+      }
+
+      // Check if custom element is defined
+      if (!customElements.get('soccer-odds')) {
+        console.error('soccer-odds custom element is not defined');
+        containerRef.current.innerHTML = '<div class="text-red-600 text-center py-4">Widget script failed to load. Please refresh the page.</div>';
+        return;
+      }
 
       // Create widget element
       const widget = document.createElement('soccer-odds');
@@ -53,17 +66,28 @@ export default function WidgetPreview({
         script.src = '/widget.js';
         script.async = true;
         script.onload = () => {
-          createWidget();
+          // Wait a bit for custom element to be registered
+          setTimeout(createWidget, 50);
         };
         script.onerror = () => {
+          console.error('Failed to load widget.js');
           if (containerRef.current) {
             containerRef.current.innerHTML = '<div class="text-red-600 text-center py-4">Failed to load widget.js. Check that the file exists at /widget.js</div>';
           }
         };
         document.head.appendChild(script);
       } else {
-        // Script already loading, wait a bit then try
-        setTimeout(createWidget, 100);
+        // Script already exists, wait a bit then try
+        setTimeout(() => {
+          if (customElements.get('soccer-odds')) {
+            createWidget();
+          } else {
+            console.error('Widget script exists but custom element not registered');
+            if (containerRef.current) {
+              containerRef.current.innerHTML = '<div class="text-red-600 text-center py-4">Widget script loaded but custom element not found. Please refresh the page.</div>';
+            }
+          }
+        }, 200);
       }
     }
   };
@@ -86,7 +110,20 @@ export default function WidgetPreview({
 
   return (
     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 min-h-[400px]">
-      {!isLoaded ? (
+      {isLoaded && (
+        <button
+          onClick={() => {
+            setIsLoaded(false);
+            if (containerRef.current) {
+              containerRef.current.innerHTML = '';
+            }
+          }}
+          className="mb-2 px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+        >
+          Reload Preview
+        </button>
+      )}
+      {!isLoaded && (
         <div className="flex flex-col items-center justify-center h-full">
           <p className="text-gray-500 mb-4 text-center">
             Click the button below to load the widget preview
@@ -99,22 +136,9 @@ export default function WidgetPreview({
             Load Preview
           </button>
         </div>
-      ) : (
-        <div>
-          <button
-            onClick={() => {
-              setIsLoaded(false);
-              if (containerRef.current) {
-                containerRef.current.innerHTML = '';
-              }
-            }}
-            className="mb-2 px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            Reload Preview
-          </button>
-          <div ref={containerRef} className="widget-preview-container"></div>
-        </div>
       )}
+      {/* Always render container for ref */}
+      <div ref={containerRef} className="widget-preview-container"></div>
     </div>
   );
 }
