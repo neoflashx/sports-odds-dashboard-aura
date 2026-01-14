@@ -74,7 +74,7 @@ function App() {
         
         // Reset selections when matches change
         setSelectedMatch('');
-        setSelectedBookmaker('');
+        setSelectedBookmakers([]);
         setAvailableBookmakers([]);
       } else {
         console.error('Failed to fetch matches:', response.status);
