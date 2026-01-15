@@ -384,7 +384,7 @@ class SoccerOdds extends HTMLElement {
   }
 
   private buildOddsRow(label: string, odds: (number | null)[], bestValue: number | null): string {
-    const cells = odds.map((odd, index) => {
+    const cells = odds.map((odd) => {
       const isBest = odd !== null && bestValue !== null && odd === bestValue;
       const cellClass = odd !== null ? 'available' : 'unavailable';
       const bestClass = isBest ? 'best-odd' : '';

@@ -14,23 +14,12 @@ const escapeHtml = (text: string): string => {
   return text.replace(/[&<>"']/g, (m) => map[m]);
 };
 
-const formatMatchTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-};
-
 const getStyles = (theme: 'dark' | 'light'): string => {
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#1a1a1a' : '#ffffff';
   const textColor = isDark ? '#e0e0e0' : '#333333';
   const borderColor = isDark ? '#333333' : '#e0e0e0';
   const primaryColor = isDark ? '#4a9eff' : '#2563eb';
-  const hoverBg = isDark ? '#2a2a2a' : '#f5f5f5';
 
   return `
     <style>
