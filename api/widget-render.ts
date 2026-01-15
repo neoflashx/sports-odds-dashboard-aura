@@ -55,141 +55,182 @@ const getStyles = (theme: 'dark' | 'light'): string => {
       .matches {
         display: flex;
         flex-direction: column;
-        gap: 12px;
       }
 
       .match {
-        border: 1px solid ${borderColor};
-        border-radius: 6px;
-        padding: 12px;
-        transition: background 0.2s;
+        background: ${bgColor};
+        border-bottom: 1px solid ${borderColor};
       }
 
-      .match:hover {
-        background: ${hoverBg};
+      .match:last-child {
+        border-bottom: none;
       }
 
       .match-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-        flex-wrap: wrap;
-        gap: 8px;
+        background: ${isDark ? '#2a2a2a' : '#f8f9fa'};
+        padding: 12px 16px;
+        border-bottom: 2px solid ${borderColor};
       }
 
-      .teams {
+      .league-info {
         display: flex;
         align-items: center;
-        gap: 8px;
-        flex: 1;
-        min-width: 0;
-      }
-
-      .team {
-        font-weight: 600;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .vs {
-        color: ${isDark ? '#888' : '#666'};
-        font-size: 12px;
-      }
-
-      .match-time {
-        font-size: 12px;
-        color: ${isDark ? '#888' : '#666'};
-      }
-
-      .odds {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 8px;
-        flex-wrap: wrap;
-      }
-
-      .odd {
-        flex: 1;
-        min-width: 60px;
-        background: ${primaryColor};
-        color: white;
-        padding: 8px;
-        border-radius: 4px;
-        text-align: center;
-        font-weight: 600;
-        font-size: 16px;
-      }
-
-      .bookmakers-list {
-        display: flex;
-        flex-direction: column;
         gap: 12px;
       }
 
-      .bookmaker-odds {
-        border: 1px solid ${borderColor};
-        border-radius: 4px;
-        padding: 10px;
-        background: ${isDark ? '#222' : '#f9fafb'};
+      .league-name {
+        font-weight: 600;
+        font-size: 15px;
+        color: ${textColor};
       }
 
-      .bookmaker-name {
-        font-weight: 600;
+      .match-date {
         font-size: 13px;
+        color: ${isDark ? '#aaa' : '#666'};
+      }
+
+      .match-content {
+        display: grid;
+        grid-template-columns: 200px 180px 1fr;
+        gap: 0;
+        padding: 16px;
+      }
+
+      .match-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding-right: 16px;
+        border-right: 1px solid ${borderColor};
+      }
+
+      .team-info {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+      }
+
+      .team-name {
+        font-weight: 500;
+        font-size: 14px;
+        color: ${textColor};
+      }
+
+      .best-odds {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 16px;
+        border-right: 1px solid ${borderColor};
+      }
+
+      .best-odd-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+      }
+
+      .best-odd-value {
+        font-size: 20px;
+        font-weight: 700;
         color: ${primaryColor};
-        margin-bottom: 8px;
+        margin-bottom: 4px;
+      }
+
+      .best-odd-bookmaker {
+        font-size: 11px;
+        color: ${isDark ? '#aaa' : '#666'};
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
 
-      .odds-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 8px;
+      .odds-table-container {
+        overflow-x: auto;
+        padding-left: 16px;
       }
 
-      .odd-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        padding: 8px;
-        background: ${bgColor};
-        border-radius: 4px;
-        border: 1px solid ${borderColor};
-      }
-
-      .odd-label {
-        font-size: 11px;
-        color: ${isDark ? '#aaa' : '#666'};
-        text-align: center;
-        font-weight: 500;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      .odds-table {
         width: 100%;
+        border-collapse: collapse;
+        min-width: 400px;
       }
 
-      .odd-value {
-        font-size: 18px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 4px;
-        min-width: 50px;
+      .odds-table thead {
+        background: ${isDark ? '#2a2a2a' : '#f8f9fa'};
+      }
+
+      .outcome-header {
+        padding: 10px 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: ${isDark ? '#aaa' : '#666'};
+        border-bottom: 2px solid ${borderColor};
+      }
+
+      .bookmaker-header {
+        padding: 10px 12px;
         text-align: center;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: ${textColor};
+        border-bottom: 2px solid ${borderColor};
+        white-space: nowrap;
+        min-width: 100px;
       }
 
-      .odd-value.available {
-        background: ${primaryColor};
-        color: white;
+      .odds-row {
+        border-bottom: 1px solid ${borderColor};
       }
 
-      .odd-value.unavailable {
-        background: ${isDark ? '#333' : '#e5e7eb'};
-        color: ${isDark ? '#666' : '#9ca3af'};
+      .odds-row:last-child {
+        border-bottom: none;
+      }
+
+      .outcome-label {
+        padding: 12px;
+        font-weight: 500;
         font-size: 14px;
+        color: ${textColor};
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      .odds-cell {
+        padding: 12px;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        vertical-align: middle;
+        border-left: 1px solid ${borderColor};
+      }
+
+      .odds-cell.available {
+        color: ${textColor};
+      }
+
+      .odds-cell.unavailable {
+        color: ${isDark ? '#555' : '#9ca3af'};
+      }
+
+      .odds-cell.best-odd {
+        background: #3b82f6;
+        color: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+      }
+
+      .no-bookmakers {
+        text-align: center;
+        padding: 40px 20px;
+        color: ${isDark ? '#888' : '#666'};
+        font-style: italic;
       }
 
       .error {
@@ -204,40 +245,44 @@ const getStyles = (theme: 'dark' | 'light'): string => {
         color: ${isDark ? '#888' : '#666'};
       }
 
-      @media (max-width: 350px) {
-        .match-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .teams {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 4px;
-        }
-
-        .vs {
-          display: none;
-        }
-
-        .odds-row {
+      @media (max-width: 768px) {
+        .match-content {
           grid-template-columns: 1fr;
-          gap: 6px;
+          gap: 16px;
         }
 
-        .odd-item {
+        .match-info,
+        .best-odds {
+          border-right: none;
+          border-bottom: 1px solid ${borderColor};
+          padding-bottom: 16px;
+          padding-right: 0;
+        }
+
+        .match-info {
           flex-direction: row;
-          justify-content: space-between;
-          padding: 10px;
+          gap: 16px;
+          flex-wrap: wrap;
         }
 
-        .odd-label {
-          text-align: left;
+        .best-odds {
+          flex-direction: row;
+          gap: 16px;
+          padding-left: 0;
+        }
+
+        .odds-table-container {
+          padding-left: 0;
+        }
+
+        .odds-table {
           font-size: 12px;
         }
 
-        .odd-value {
-          font-size: 16px;
+        .bookmaker-header,
+        .odds-cell {
+          padding: 8px 6px;
+          min-width: 80px;
         }
       }
     </style>
@@ -348,14 +393,24 @@ export default async function handler(
     }
 
     const matchesHtml = filteredMatches.map((match) => {
+      const startTime = new Date(match.start_at);
+      const dateStr = startTime.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+      const timeStr = startTime.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+
       // Filter bookmakers if specific ones are selected
       let displayBookmakers = match.bookmakers;
       if (selectedBookmakers.length > 0) {
-        // Normalize function to handle variations
         const normalize = (str: string) => {
           return str
-            .replace(/\s*\([^)]*\)/g, '') // Remove parentheses and content
-            .replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric
+            .replace(/\s*\([^)]*\)/g, '')
+            .replace(/[^a-z0-9]/g, '')
             .toLowerCase();
         };
         
@@ -365,32 +420,14 @@ export default async function handler(
             const titleLower = bm.title.toLowerCase().trim();
             const keyLower = bm.key.toLowerCase().trim();
             
-            // Normalize names
             const selectedNormalized = normalize(selectedLower);
             const titleNormalized = normalize(titleLower);
             const keyNormalized = normalize(keyLower);
             
-            // Exact match (original)
-            if (titleLower === selectedLower || keyLower === selectedLower) {
-              return true;
-            }
-            
-            // Normalized match (handles "Unibet (UK)" vs "Unibet")
-            if (titleNormalized === selectedNormalized || keyNormalized === selectedNormalized) {
-              return true;
-            }
-            
-            // Partial match - check if selected name is contained in title or vice versa
-            if (titleLower.includes(selectedLower) || selectedLower.includes(titleLower)) {
-              return true;
-            }
-            
-            // Check normalized partial match
-            if (titleNormalized.includes(selectedNormalized) || selectedNormalized.includes(titleNormalized)) {
-              return true;
-            }
-            
-            return false;
+            return titleLower === selectedLower || keyLower === selectedLower ||
+                   titleNormalized === selectedNormalized || keyNormalized === selectedNormalized ||
+                   titleLower.includes(selectedLower) || selectedLower.includes(titleLower) ||
+                   titleNormalized.includes(selectedNormalized) || selectedNormalized.includes(titleNormalized);
           })
         );
       }
@@ -399,59 +436,125 @@ export default async function handler(
         return `
           <div class="match">
             <div class="match-header">
-              <div class="teams">
-                <span class="team home">${escapeHtml(match.teams.home)}</span>
-                <span class="vs">vs</span>
-                <span class="team away">${escapeHtml(match.teams.away)}</span>
+              <div class="league-info">
+                <span class="league-name">${escapeHtml(sportKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))}</span>
+                <span class="match-date">${dateStr}</span>
               </div>
-              <div class="match-time">${formatMatchTime(match.start_at)}</div>
             </div>
-            <div class="error">No bookmakers available for selected filters</div>
+            <div class="no-bookmakers">No bookmakers available for selected filters</div>
           </div>
         `;
       }
 
-      // Render each bookmaker's odds
-      const bookmakersHtml = displayBookmakers.map(bookmaker => {
+      // Calculate best odds for each outcome
+      const bestHome = displayBookmakers
+        .map(bm => ({ value: bm.odds.home, bookmaker: bm.title }))
+        .filter(o => o.value !== null)
+        .sort((a, b) => (b.value as number) - (a.value as number))[0];
+      
+      const bestDraw = displayBookmakers
+        .map(bm => ({ value: bm.odds.draw, bookmaker: bm.title }))
+        .filter(o => o.value !== null)
+        .sort((a, b) => (b.value as number) - (a.value as number))[0];
+      
+      const bestAway = displayBookmakers
+        .map(bm => ({ value: bm.odds.away, bookmaker: bm.title }))
+        .filter(o => o.value !== null)
+        .sort((a, b) => (b.value as number) - (a.value as number))[0];
+
+      // Build table header with bookmaker names
+      const bookmakerHeaders = displayBookmakers.map(bm => 
+        `<th class="bookmaker-header">${escapeHtml(bm.title)}</th>`
+      ).join('');
+
+      // Build rows for each outcome
+      const buildOddsRow = (label: string, odds: (number | null)[], bestValue: number | null) => {
+        const cells = odds.map((odd) => {
+          const isBest = odd !== null && bestValue !== null && odd === bestValue;
+          const cellClass = odd !== null ? 'available' : 'unavailable';
+          const bestClass = isBest ? 'best-odd' : '';
+          return `
+            <td class="odds-cell ${cellClass} ${bestClass}">
+              ${odd !== null ? odd.toFixed(2) : 'N/A'}
+            </td>
+          `;
+        }).join('');
+        
         return `
-          <div class="bookmaker-odds">
-            <div class="bookmaker-name">${escapeHtml(bookmaker.title)}</div>
-            <div class="odds-row">
-              <div class="odd-item">
-                <span class="odd-label">${escapeHtml(match.teams.home)}</span>
-                <span class="odd-value ${bookmaker.odds.home !== null ? 'available' : 'unavailable'}">
-                  ${bookmaker.odds.home !== null ? bookmaker.odds.home.toFixed(2) : 'N/A'}
-                </span>
-              </div>
-              <div class="odd-item">
-                <span class="odd-label">Draw</span>
-                <span class="odd-value ${bookmaker.odds.draw !== null ? 'available' : 'unavailable'}">
-                  ${bookmaker.odds.draw !== null ? bookmaker.odds.draw.toFixed(2) : 'N/A'}
-                </span>
-              </div>
-              <div class="odd-item">
-                <span class="odd-label">${escapeHtml(match.teams.away)}</span>
-                <span class="odd-value ${bookmaker.odds.away !== null ? 'available' : 'unavailable'}">
-                  ${bookmaker.odds.away !== null ? bookmaker.odds.away.toFixed(2) : 'N/A'}
-                </span>
-              </div>
-            </div>
-          </div>
+          <tr class="odds-row">
+            <td class="outcome-label">${escapeHtml(label)}</td>
+            ${cells}
+          </tr>
         `;
-      }).join('');
+      };
+
+      const homeRow = buildOddsRow(
+        match.teams.home,
+        displayBookmakers.map(bm => bm.odds.home),
+        bestHome?.value as number | null
+      );
+      
+      const drawRow = buildOddsRow(
+        'Draw',
+        displayBookmakers.map(bm => bm.odds.draw),
+        bestDraw?.value as number | null
+      );
+      
+      const awayRow = buildOddsRow(
+        match.teams.away,
+        displayBookmakers.map(bm => bm.odds.away),
+        bestAway?.value as number | null
+      );
 
       return `
         <div class="match">
           <div class="match-header">
-            <div class="teams">
-              <span class="team home">${escapeHtml(match.teams.home)}</span>
-              <span class="vs">vs</span>
-              <span class="team away">${escapeHtml(match.teams.away)}</span>
+            <div class="league-info">
+              <span class="league-name">${escapeHtml(sportKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))}</span>
+              <span class="match-date">${dateStr} ${timeStr}</span>
             </div>
-            <div class="match-time">${formatMatchTime(match.start_at)}</div>
           </div>
-          <div class="bookmakers-list">
-            ${bookmakersHtml}
+          <div class="match-content">
+            <div class="match-info">
+              <div class="team-info">
+                <div class="team-name">${escapeHtml(match.teams.home)}</div>
+              </div>
+              <div class="team-info">
+                <div class="team-name">${escapeHtml(match.teams.away)}</div>
+              </div>
+              <div class="team-info">
+                <div class="team-name">Draw</div>
+              </div>
+            </div>
+            <div class="best-odds">
+              <div class="best-odd-item">
+                <div class="best-odd-value">${bestHome?.value ? bestHome.value.toFixed(2) : 'N/A'}</div>
+                <div class="best-odd-bookmaker">${bestHome?.bookmaker || 'N/A'}</div>
+              </div>
+              <div class="best-odd-item">
+                <div class="best-odd-value">${bestDraw?.value ? bestDraw.value.toFixed(2) : 'N/A'}</div>
+                <div class="best-odd-bookmaker">${bestDraw?.bookmaker || 'N/A'}</div>
+              </div>
+              <div class="best-odd-item">
+                <div class="best-odd-value">${bestAway?.value ? bestAway.value.toFixed(2) : 'N/A'}</div>
+                <div class="best-odd-bookmaker">${bestAway?.bookmaker || 'N/A'}</div>
+              </div>
+            </div>
+            <div class="odds-table-container">
+              <table class="odds-table">
+                <thead>
+                  <tr>
+                    <th class="outcome-header"></th>
+                    ${bookmakerHeaders}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${homeRow}
+                  ${drawRow}
+                  ${awayRow}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       `;
